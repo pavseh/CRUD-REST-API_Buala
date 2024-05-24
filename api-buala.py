@@ -22,3 +22,17 @@ def data_fetch(query):
     data = cur.fetchall()
     cur.close()
     return data
+
+# Get Company Data
+@app.route("/company", methods=["GET"])
+def get_company():
+    data = data_fetch("""SELECT * FROM company""")
+    # JSON response return value
+    return make_response(jsonify(data), 200)
+
+# Get Company ID
+@app.route("/company/<int:id>", methods=["GET"])
+def get_company_by_id(id):
+    data = data_fetch("""SELECT * FROM company WHERE id = {}""".format(id))
+    # JSON response return
+    return make_response(jsonify(data), 200)
