@@ -4,6 +4,32 @@
 Welcome to the Ivern Studios API documentation! This API provides functionality to manage the studio company information with user authentication, built with Flask and MySQL.
 
 
+### REST API
+
+- REST API stands for "Representational State Transfer Application Programming Interface".
+  
+- It is an architectural style for an  API that uses HTTP requests to access and use data, and exchange it securely over the internet. REST API is an a way for two computer systems to communicate.
+
+- For instance, when a developer requests YouTube API to fetch a user's object or a resource, the API will send back the state of that user, their name, subscribers, and videos or posts shared on YouTube. This is possible due to the API integration projects. This also applies to some other websites such as Twitter and Facebook.
+
+- It interacts with resources by using representations such as in JSON, XML, or HTML format.
+
+- REST API uses resources that are represented by URIs, and each of them can be identified by a unique URL.
+
+- REST APIs also have a uniform interface that simplifies the architecture, typically achieved by sticking to standard HTTP methods:
+  
+`GET: Retrieve information from the server.`
+
+`POST: Send data to the server to create or update a resource.`
+
+`PUT: Update a resource on the server.`
+
+`DELETE: Remove a resource from the server`
+
+
+- In simple terms, this REST API is a set of rules or conventions for building/interacting with web services. It also relies on a stateless, client-server communication protocol like HTTP or the Hypertext Transfer Protocol.
+
+
 ## Installation
 
 1. Create or Clone the Repository:
@@ -20,6 +46,11 @@ Welcome to the Ivern Studios API documentation! This API provides functionality 
 3. Install all the required dependencies or libraries:
     ```bash
     pip install -r requirements.txt
+    ```
+
+    or can install them one by one:
+    ```bash
+    pip install Flask Flask-MySQLdb Flask-RESTful Flask-JWT-Extended
     ```
 
 4. Set up the MySQL database by executing the SQL Database I made for the program: `ivernstudios.sql`.
