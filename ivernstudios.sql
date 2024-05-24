@@ -1,3 +1,4 @@
+CREATE DATABASE ivernstudios;
 USE ivernstudios;
 
 CREATE TABLE ivernstudios (
@@ -7,7 +8,13 @@ CREATE TABLE ivernstudios (
     position VARCHAR(100)
 );
 
-INSERT INTO company (name, age, position) VALUES 
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(100) NOT NULL UNIQUE,
+    password VARCHAR(100) NOT NULL
+);
+
+INSERT INTO ivernstudios (name, age, position) VALUES 
 ('Ivern Buala', 21, 'Founder'),
 ('Lawrence Apalla', 20, 'Co-Founder'),
 ('Joshua Matriano', 18, 'Co-Founder'),
@@ -28,3 +35,5 @@ INSERT INTO company (name, age, position) VALUES
 ('Jed Felisilda', 20, 'Graphic Designer'),
 ('Kervin Dela Cruz', 20, 'Graphic Designer'),
 ('Adrianne Blu Sanchez', 21, 'Video Editor');
+
+INSERT INTO users (username, password) VALUES ('admin', 'buala');

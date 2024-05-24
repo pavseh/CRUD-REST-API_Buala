@@ -1,11 +1,11 @@
-from flask import Flask, make_response, jsonify, request
+from flask import Flask, jsonify, request, make_response
 from flask_mysqldb import MySQL
 from flask_restful import Api, Resource, reqparse
-from flask_jwt import JWT, jwt_required, current_identity
-from werkzeug.security import safe_str_cmp
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+import hmac
 
 app = Flask(__name__)
-app.config["SECRET_KEY"] = "super-secret" # Secret Key for JWT
+app.config["SECRET_KEY"] = "super-secret"  # Secret key for JWT
 api = Api(app)
 
 # Main Config of Database
@@ -17,29 +17,50 @@ app.config["MYSQL_CURSORCLASS"] = "DictCursor"
 
 mysql = MySQL(app)
 
-# All Functions
+# Initialize JWT Manager
+jwt = JWTManager(app)
 
+# User class
 class User(object):
-    def __init__(self, id):
+    def __init__(self, id, username, password):
         self.id = id
-    
+        self.username = username
+        self.password = password
+
     @classmethod
     def find_by_username(cls, username):
-        if username == "admin":
-            return cls(id=1)
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT * FROM users WHERE username = %s", (username,))
+        result = cur.fetchone()
+        cur.close()
+        if result:
+            return cls(id=result['id'], username=result['username'], password=result['password'])
+        return None
 
-def authentication(username, password):
+    @classmethod
+    def find_by_id(cls, id):
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT * FROM users WHERE id = %s", (id,))
+        result = cur.fetchone()
+        cur.close()
+        if result:
+            return cls(id=result['id'], username=result['username'], password=result['password'])
+        return None
+
+# Authentication endpoint
+@app.route('/auth', methods=['POST'])
+def auth():
+    username = request.json.get('username', None)
+    password = request.json.get('password', None)
     user = User.find_by_username(username)
-    if user and safe_str_cmp(password.encode("utf-8"), "password".encode("utf-8")):
-        return user
+    if user and hmac.compare_digest(user.password, password):
+        access_token = create_access_token(identity=user.id)
+        return jsonify(access_token=access_token)
+    return jsonify({"msg": "Bad username or password"}), 401
 
-def identity(payload):
-    user_id = payload["identity"]
-    return User.find_by_id(user_id)
+# All Functions
 
-
-
-# MAIN
+# Testing
 class Index(Resource):
     def get(self):
         return {
@@ -53,8 +74,6 @@ class Index(Resource):
             }
         }
 
-
-
 # Fetching Data from Database
 def data_fetch(query):
     cur = mysql.connection.cursor()
@@ -65,18 +84,15 @@ def data_fetch(query):
 
 # Get Company Data Info
 class Company(Resource):
-    def get_company():
+    def get(self):
         data = data_fetch("""SELECT * FROM ivernstudios""")
-        # JSON response return value
         return make_response(jsonify(data), 200)
 
 # Get Company ID Info
 class CompanyByID(Resource):
     def get(self, id):
         data = data_fetch("""SELECT * FROM ivernstudios WHERE id = {}""".format(id))
-        # JSON response return value
         return make_response(jsonify(data), 200)
-
 
 # Add Company Info
 class AddCompany(Resource):
@@ -104,48 +120,54 @@ class AddCompany(Resource):
             201,
         )
 
-
 # Update Company Info
-@app.route("/company/<int:id>", methods=["PUT"])
-def update_company(id):
+class UpdateCompany(Resource):
+    @jwt_required()
+    def put(self, id):
+        parser = reqparse.RequestParser()
+        parser.add_argument("name")
+        parser.add_argument("age", type=int)
+        parser.add_argument("position")
+        info = parser.parse_args()
 
-    # Extract Updated Company Data
-    info = request.get_json()
-    name = info.get("name")
-    age = info.get("age")
-    position = info.get("position")
-    
-    # Update Company Data
-    cur = mysql.connection.cursor()
-    cur.execute(
-        """UPDATE ivernstudios SET name = %s, age = %s, position = %s WHERE id = %s""",
-        (name, age, position, id),
-    )
-    mysql.connection.commit()
-    cur.close()
-    
-    # Return Value if company updated
-    return make_response(
-        jsonify({"message": "company updated successfully", "id": id, "name": name, "age": age, "position": position}),
-        200,
-    )
-
+        name = info["name"]
+        age = info["age"]
+        position = info["position"]
+        
+        cur = mysql.connection.cursor()
+        cur.execute(
+            """UPDATE ivernstudios SET name = %s, age = %s, position = %s WHERE id = %s""",
+            (name, age, position, id),
+        )
+        mysql.connection.commit()
+        cur.close()
+        
+        return make_response(
+            jsonify({"message": "company updated successfully", "id": id, "name": name, "age": age, "position": position}),
+            200,
+        )
 
 # Delete Company
-@app.route("/company/<int:id>", methods=["DELETE"])
-def delete_company(id):
+class DeleteCompany(Resource):
+    @jwt_required()
+    def delete(self, id):
+        cur = mysql.connection.cursor()
+        cur.execute("""DELETE FROM ivernstudios WHERE id = %s""", (id,))
+        mysql.connection.commit()
+        cur.close()
+        
+        return make_response(
+            jsonify({"message": "company deleted successfully", "id": id}),
+            200,
+        )
 
-    # Delete Company Data
-    cur = mysql.connection.cursor()
-    cur.execute("""DELETE FROM ivernstudios WHERE id = %s""", (id,))
-    mysql.connection.commit()
-    cur.close()
-    
-    # Return value if company data deleted
-    return make_response(
-        jsonify({"message": "company deleted successfully", "id": id}),
-        200,
-    )
+# Resource routing
+api.add_resource(Index, "/")
+api.add_resource(Company, "/company")
+api.add_resource(CompanyByID, "/company/<int:id>")
+api.add_resource(AddCompany, "/company")
+api.add_resource(UpdateCompany, "/company/<int:id>")
+api.add_resource(DeleteCompany, "/company/<int:id>")
 
 # Flask App
 if __name__ == "__main__":
