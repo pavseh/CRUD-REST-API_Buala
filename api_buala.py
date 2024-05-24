@@ -6,9 +6,8 @@ app = Flask(__name__)
 # Main Config of Database
 app.config["MYSQL_HOST"] = "localhost"
 app.config["MYSQL_USER"] = "root"
-app.config["MYSQL_PASSWORD"] = "your_mysql_password"  
+app.config["MYSQL_PASSWORD"] = "111004"  
 app.config["MYSQL_DB"] = "ivernstudios"
-
 app.config["MYSQL_CURSORCLASS"] = "DictCursor"
 
 mysql = MySQL(app)
@@ -24,21 +23,21 @@ def data_fetch(query):
     return data
 
 # Get Company Data Info
-@app.route("/ivernstudios", methods=["GET"])
+@app.route("/company", methods=["GET"])
 def get_company():
     data = data_fetch("""SELECT * FROM ivernstudios""")
     # JSON response return value
     return make_response(jsonify(data), 200)
 
 # Get Company ID Info
-@app.route("/ivernstudios/<int:id>", methods=["GET"])
+@app.route("/company/<int:id>", methods=["GET"])
 def get_company_by_id(id):
     data = data_fetch("""SELECT * FROM ivernstudios WHERE id = {}""".format(id))
     # JSON response return
     return make_response(jsonify(data), 200)
 
 # Add Company Info
-@app.route("/ivernstudios", methods=["POST"])
+@app.route("/company", methods=["POST"])
 def add_company():
 
     # Extract Company Data
@@ -64,7 +63,7 @@ def add_company():
 
 
 # Update Company Info
-@app.route("/ivernstudios/<int:id>", methods=["PUT"])
+@app.route("/company/<int:id>", methods=["PUT"])
 def update_company(id):
 
     # Extract Updated Company Data
@@ -90,7 +89,7 @@ def update_company(id):
 
 
 # Delete Company
-@app.route("/ivernstudios/<int:id>", methods=["DELETE"])
+@app.route("/company/<int:id>", methods=["DELETE"])
 def delete_company(id):
 
     # Delete Company Data
