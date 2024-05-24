@@ -106,5 +106,5 @@ def delete_company(id):
     )
 
 # Flask App
-if __name__ == "__studioapi__":
+if __name__ == "__api__":
     app.run(debug=True)
