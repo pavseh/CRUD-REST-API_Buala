@@ -12,3 +12,13 @@ app.config["MYSQL_DB"] = "ivernstudios"
 app.config["MYSQL_CURSORCLASS"] = "DictCursor"
 
 mysql = MySQL(app)
+
+# All Functions
+
+# Fetching Data from Database
+def data_fetch(query):
+    cur = mysql.connection.cursor()
+    cur.execute(query)
+    data = cur.fetchall()
+    cur.close()
+    return data
