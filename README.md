@@ -16,7 +16,7 @@ Welcome to the Ivern Studios API documentation! This API provides functionality 
 
 - REST API uses resources that are represented by URIs, and each of them can be identified by a unique URL.
 
-- REST APIs also have a uniform interface that simplifies the architecture, typically achieved by sticking to standard HTTP methods:
+- REST APIs also have a uniform interface that simplifies the architecture, typically achieved by sticking to standard HTTP methods or the CRUD:
   
 `GET: Retrieve information from the server.`
 
@@ -52,6 +52,11 @@ Welcome to the Ivern Studios API documentation! This API provides functionality 
     ```bash
     pip install Flask Flask-MySQLdb Flask-RESTful Flask-JWT-Extended
     ```
+
+    ```bash
+    pip install hmac
+    ```
+    *This HMAC or Hash-based Message Authentication Code may be already inside the rest of the installed libraries. This module ensures that the data is safe to any attacks and safeguard its integerity. It can be only accessed and unlocked with the right secret key.*
 
 4. Set up the MySQL database by executing the SQL Database I made for the program: `ivernstudios.sql`.
 
