@@ -104,3 +104,7 @@ def delete_company(id):
         jsonify({"message": "company deleted successfully", "id": id}),
         200,
     )
+
+# Flask App
+if __name__ == "__studioapi__":
+    app.run(debug=True)
