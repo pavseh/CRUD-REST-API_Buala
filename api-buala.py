@@ -6,7 +6,7 @@ app = Flask(__name__)
 # Main Config of Database
 app.config["MYSQL_HOST"] = "localhost"
 app.config["MYSQL_USER"] = "root"
-app.config["MYSQL_PASSWORD"] = "studio123456"  
+app.config["MYSQL_PASSWORD"] = "your_mysql_password"  
 app.config["MYSQL_DB"] = "ivernstudios"
 
 app.config["MYSQL_CURSORCLASS"] = "DictCursor"
@@ -24,21 +24,21 @@ def data_fetch(query):
     return data
 
 # Get Company Data Info
-@app.route("/company", methods=["GET"])
+@app.route("/ivernstudios", methods=["GET"])
 def get_company():
-    data = data_fetch("""SELECT * FROM company""")
+    data = data_fetch("""SELECT * FROM ivernstudios""")
     # JSON response return value
     return make_response(jsonify(data), 200)
 
 # Get Company ID Info
-@app.route("/company/<int:id>", methods=["GET"])
+@app.route("/ivernstudios/<int:id>", methods=["GET"])
 def get_company_by_id(id):
-    data = data_fetch("""SELECT * FROM company WHERE id = {}""".format(id))
+    data = data_fetch("""SELECT * FROM ivernstudios WHERE id = {}""".format(id))
     # JSON response return
     return make_response(jsonify(data), 200)
 
 # Add Company Info
-@app.route("/company", methods=["POST"])
+@app.route("/ivernstudios", methods=["POST"])
 def add_company():
 
     # Extract Company Data
@@ -50,7 +50,7 @@ def add_company():
     # Insert New Company Data
     cur = mysql.connection.cursor()
     cur.execute(
-        """INSERT INTO company (name, age, position) VALUES (%s, %s, %s)""",
+        """INSERT INTO ivernstudios (name, age, position) VALUES (%s, %s, %s)""",
         (name, age, position),
     )
     mysql.connection.commit()
@@ -64,7 +64,7 @@ def add_company():
 
 
 # Update Company Info
-@app.route("/company/<int:id>", methods=["PUT"])
+@app.route("/ivernstudios/<int:id>", methods=["PUT"])
 def update_company(id):
 
     # Extract Updated Company Data
@@ -76,7 +76,7 @@ def update_company(id):
     # Update Company Data
     cur = mysql.connection.cursor()
     cur.execute(
-        """UPDATE company SET name = %s, age = %s, position = %s WHERE id = %s""",
+        """UPDATE ivernstudios SET name = %s, age = %s, position = %s WHERE id = %s""",
         (name, age, position, id),
     )
     mysql.connection.commit()
@@ -90,12 +90,12 @@ def update_company(id):
 
 
 # Delete Company
-@app.route("/company/<int:id>", methods=["DELETE"])
+@app.route("/ivernstudios/<int:id>", methods=["DELETE"])
 def delete_company(id):
 
     # Delete Company Data
     cur = mysql.connection.cursor()
-    cur.execute("""DELETE FROM company WHERE id = %s""", (id,))
+    cur.execute("""DELETE FROM ivernstudios WHERE id = %s""", (id,))
     mysql.connection.commit()
     cur.close()
     
