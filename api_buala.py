@@ -15,12 +15,14 @@ app.config["MYSQL_PASSWORD"] = "111004"
 app.config["MYSQL_DB"] = "ivernstudios"
 app.config["MYSQL_CURSORCLASS"] = "DictCursor"
 
+# Database
 mysql = MySQL(app)
 
-# Initialize JWT Manager
+# JWT Manager for Auth/Security purposes
 jwt = JWTManager(app)
 
-# User class
+
+# User Class
 class User(object):
     def __init__(self, id, username, password):
         self.id = id
@@ -47,7 +49,8 @@ class User(object):
             return cls(id=result['id'], username=result['username'], password=result['password'])
         return None
 
-# Authentication endpoint
+
+# Authentication (Username/Password)
 @app.route('/auth', methods=['POST'])
 def auth():
     username = request.json.get('username', None)
@@ -56,31 +59,25 @@ def auth():
     if user and hmac.compare_digest(user.password, password):
         access_token = create_access_token(identity=user.id)
         return jsonify(access_token=access_token)
+    
     return jsonify({"msg": "Bad username or password"}), 401
 
 # All Functions
 
-# Testing
+
+# Tester/Welcomer Message
 class Index(Resource):
     def get(self):
-        return {
-            "message": "Welcome to the Ivern Studios API!",
-            "endpoints": {
-                "View all companies": "/company",
-                "View company by ID": "/company/<int:id>",
-                "Add a new company": "/company",
-                "Update company by ID": "/company/<int:id>",
-                "Delete company by ID": "/company/<int:id>"
-            }
-        }
+        return {"message": "Welcome to the Ivern Studios API!",}
 
-# Fetching Data from Database
+# Fetch Data from the Database
 def data_fetch(query):
     cur = mysql.connection.cursor()
     cur.execute(query)
     data = cur.fetchall()
     cur.close()
     return data
+
 
 # Get Company Data Info
 class Company(Resource):
@@ -93,6 +90,7 @@ class CompanyByID(Resource):
     def get(self, id):
         data = data_fetch("""SELECT * FROM ivernstudios WHERE id = {}""".format(id))
         return make_response(jsonify(data), 200)
+
 
 # Add Company Info
 class AddCompany(Resource):
@@ -107,6 +105,7 @@ class AddCompany(Resource):
         age = info["age"]
         position = info["position"]
         
+        # Add/Insert Info
         cur = mysql.connection.cursor()
         cur.execute(
             """INSERT INTO ivernstudios (name, age, position) VALUES (%s, %s, %s)""",
@@ -115,10 +114,12 @@ class AddCompany(Resource):
         mysql.connection.commit()
         cur.close()
         
+        # Message
         return make_response(
             jsonify({"message": "company added successfully", "name": name, "age": age, "position": position}),
             201,
         )
+
 
 # Update Company Info
 class UpdateCompany(Resource):
@@ -134,6 +135,7 @@ class UpdateCompany(Resource):
         age = info["age"]
         position = info["position"]
         
+        # Update
         cur = mysql.connection.cursor()
         cur.execute(
             """UPDATE ivernstudios SET name = %s, age = %s, position = %s WHERE id = %s""",
@@ -142,32 +144,30 @@ class UpdateCompany(Resource):
         mysql.connection.commit()
         cur.close()
         
+        # Message
         return make_response(
             jsonify({"message": "company updated successfully", "id": id, "name": name, "age": age, "position": position}),
             200,
         )
 
+
 # Delete Company
 class DeleteCompany(Resource):
     @jwt_required()
     def delete(self, id):
+
+        # Delete
         cur = mysql.connection.cursor()
         cur.execute("""DELETE FROM ivernstudios WHERE id = %s""", (id,))
         mysql.connection.commit()
         cur.close()
         
+        # Message
         return make_response(
             jsonify({"message": "company deleted successfully", "id": id}),
             200,
         )
 
-# Resource routing
-api.add_resource(Index, "/")
-api.add_resource(Company, "/company")
-api.add_resource(CompanyByID, "/company/<int:id>")
-api.add_resource(AddCompany, "/company")
-api.add_resource(UpdateCompany, "/company/<int:id>")
-api.add_resource(DeleteCompany, "/company/<int:id>")
 
 # Flask App
 if __name__ == "__main__":

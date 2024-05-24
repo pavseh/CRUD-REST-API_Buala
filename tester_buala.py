@@ -8,22 +8,27 @@ class TestAPITester(unittest.TestCase):
         self.app = app.test_client()
         warnings.simplefilter("ignore", category=DeprecationWarning)
 
+    # Test 1
     def test_get_company(self):
         response = self.app.get("/company")
         self.assertEqual(response.status_code, 200)
         self.assertTrue("Ivern Buala" in response.data.decode())
 
+    # Test 2
     def test_get_company_id(self):
         response = self.app.get("/company/1")
         self.assertEqual(response.status_code, 200)
         self.assertTrue("Ivern Buala" in response.data.decode())
 
+    # Add
     def test_add_company(self):
         data = {"name": "Ivern Buala", "age": 21, "position": "Founder"}
         response = self.app.post("/company", json=data)
         self.assertEqual(response.status_code, 201)
         self.assertTrue("Ivern Buala" in response.data.decode())
 
+
+    # Update
     def test_update_company(self):
         # Login to get the token
         login_response = self.app.post('/auth', json={'username': 'admin', 'password': 'password123'})
@@ -39,6 +44,7 @@ class TestAPITester(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue("Lawrence Apalla" in response.data.decode())
 
+    # Delete
     def test_delete_company(self):
         # Login to get the token
         login_response = self.app.post('/auth', json={'username': 'admin', 'password': 'password123'})
