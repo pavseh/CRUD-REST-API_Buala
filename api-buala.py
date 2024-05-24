@@ -40,7 +40,7 @@ def get_company_by_id(id):
 # Add Company Info
 @app.route("/company", methods=["POST"])
 def add_company():
-    
+
     # Extract Company Data
     info = request.get_json()
     name = info.get("name")
@@ -85,5 +85,22 @@ def update_company(id):
     # Return Value if company updated
     return make_response(
         jsonify({"message": "company updated successfully", "id": id, "name": name, "age": age, "position": position}),
+        200,
+    )
+
+
+# Delete Company
+@app.route("/company/<int:id>", methods=["DELETE"])
+def delete_company(id):
+
+    # Delete Company Data
+    cur = mysql.connection.cursor()
+    cur.execute("""DELETE FROM company WHERE id = %s""", (id,))
+    mysql.connection.commit()
+    cur.close()
+    
+    # Return value if company data deleted
+    return make_response(
+        jsonify({"message": "company deleted successfully", "id": id}),
         200,
     )
