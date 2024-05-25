@@ -168,6 +168,13 @@ class DeleteCompany(Resource):
             200,
         )
 
+# API for the Postman
+api.add_resource(Index, '/')
+api.add_resource(Company, '/company')
+api.add_resource(CompanyByID, '/company/<int:id>')
+api.add_resource(AddCompany, '/company')
+api.add_resource(UpdateCompany, '/company/<int:id>')
+api.add_resource(DeleteCompany, '/company/<int:id>')
 
 # Flask App
 if __name__ == "__main__":
